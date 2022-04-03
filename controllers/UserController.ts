@@ -2,7 +2,7 @@
  * @file Controller RESTful Web service API for users resource
  */
 import UserDao from "../daos/UserDao";
-import User from "../models/users/user";
+import User from "../models/users/User";
 import {Express, Request, Response} from "express";
 import UserControllerI from "../interfaces/UserControllerI";
 

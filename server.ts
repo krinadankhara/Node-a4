@@ -5,87 +5,71 @@
  *     <li>users</li>
  *     <li>tuits</li>
  *     <li>likes</li>
- *     <li>follows</li>
- *     <li>bookmarks</li>
- *     <li>messages</li>
  * </ul>
  *
  * Connects to a remote MongoDB instance hosted on the Atlas cloud database
  * service
  */
-import 'dotenv/config'
+import 'dotenv/config';
 import express, {Request, Response} from 'express';
-import mongoose from 'mongoose';
-const cors = require("cors");
-
-const session = require("express-session");
-import UserController from './controllers/UserController';
+import CourseController from "./controllers/CourseController";
+import UserController from "./controllers/UserController";
 import TuitController from "./controllers/TuitController";
+import SessionController from "./controllers/SessionController";
 import AuthenticationController from "./controllers/AuthenticationController";
+import mongoose from "mongoose";
+import GroupController from "./controllers/GroupController";
+const cors = require("cors");
+const session = require("express-session");
 
-/**
- * Constants for database connection
- */
+// build the connection string
+require('dotenv').config();
 const PROTOCOL = "mongodb+srv";
 const DB_USERNAME = process.env.DB_USERNAME;
 const DB_PASSWORD = process.env.DB_PASSWORD;
-const DB_HOST = process.env.DB_HOST;
-const DB_NAME = "myFirstDatabase";
+const HOST = "cluster0.9ylnd.mongodb.net";
+const DB_NAME = "tuiter";
 const DB_QUERY = "retryWrites=true&w=majority";
-
-/**
- * @const {string} Represents the connection string for MongoDB Atlas connection
- */
 const connectionString = `mongodb+srv://krinadankhara:Krina1010@cluster0.wpjsn.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+// connect to the database
 mongoose.connect(connectionString);
 
-/**
- * @const {Express} Represents the Express App
- */
 const app = express();
 app.use(cors({
     credentials: true,
-    origin: [
-        'http://localhost:3000',
-        'http://localhost',
-    ]
+    origin: 'http://localhost:3000',
 }));
 
-const SECRET = process.env.SECRET;
 let sess = {
-    secret: SECRET,
+    secret: process.env.SECRET,
     saveUninitialized: true,
     resave: true,
     cookie: {
-        secure: false,
-        sameSite: 'none'
+        sameSite: process.env.NODE_ENV === "production" ? 'none' : 'lax',
+        secure: process.env.NODE_ENV === "production",
     }
 }
 
-if (process.env.ENVIRONMENT === 'PRODUCTION') {
+if (process.env.NODE_ENV === 'production') {
     app.set('trust proxy', 1) // trust first proxy
-    sess.cookie.secure = true // serve secure cookies
 }
 
-app.use(session(sess));
+app.use(session(sess))
 app.use(express.json());
 
-/**
- * Route to check if service is running
- * @param {string} path Base path of API
- * @param {callback} middleware Express middleware
- */
-app.get('/', (req: Request, res: Response) => {
-    res.send('Running!')
-});
+app.get('/', (req: Request, res: Response) =>
+    res.send('Welcome!'));
 
-/**
- * Create RESTful Web service API
- */
-UserController.getInstance(app);
-TuitController.getInstance(app);
+app.get('/add/:a/:b', (req: Request, res: Response) =>
+    res.send(req.params.a + req.params.b));
+
+// create RESTful Web service API
+const courseController = new CourseController(app);
+const userController = UserController.getInstance(app);
+const tuitController = TuitController.getInstance(app);
+SessionController(app);
 AuthenticationController(app);
-
+GroupController(app);
 /**
  * Start a server listening at port 4000 locally
  * but use environment variable PORT on Heroku if available.

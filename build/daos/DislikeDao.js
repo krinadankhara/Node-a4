@@ -33,6 +33,7 @@ class DislikeDao {
             return DislikeModel_1.default.deleteOne({ tuit: tid, dislikedBy: uid });
         });
         this.findUserDislikesTuit = (uid, tid) => __awaiter(this, void 0, void 0, function* () { return DislikeModel_1.default.findOne({ tuit: tid, dislikedBy: uid }); });
+        this.countHowManyDislikedTuit = (tid) => __awaiter(this, void 0, void 0, function* () { return DislikeModel_1.default.count({ tuit: tid }); });
     }
 }
 exports.default = DislikeDao;

@@ -12,43 +12,82 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const DislikeModel_1 = __importDefault(require("../mongoose/dislikes/DislikeModel"));
-/**
- * @class DislikeDao Implements Data Access Object managing data storage of Dislikes
- * @property {DislikeDao} dislikeDao Private single instance of DislikeDao
- */
-class DislikeDao {
+const DislikeDao_1 = __importDefault(require("../daos/DislikeDao"));
+const TuitDao_1 = __importDefault(require("../daos/TuitDao"));
+const LikeDao_1 = __importDefault(require("../daos/LikeDao"));
+class DislikeController {
     constructor() {
-        this.findAllUsersThatDislikedTuit = (tid) => __awaiter(this, void 0, void 0, function* () {
-            return DislikeModel_1.default.find({ tuit: tid }).populate("dislikedBy").exec();
-        });
-        this.findAllTuitsDislikedByUser = (uid) => __awaiter(this, void 0, void 0, function* () {
-            return DislikeModel_1.default.find({ dislikedBy: uid }).populate({
-                path: "tuit",
-                populate: {
-                    path: "postedBy"
+        this.findAllUsersThatDislikedTuit = (req, res) => DislikeController.dislikeDao.findAllUsersThatDislikedTuit(req.params.tid)
+            .then((dislikes) => res.json(dislikes));
+        this.findAllTuitsDislikedByUser = (req, res) => {
+            const uid = req.params.uid;
+            // @ts-ignore
+            const profile = req.session['profile'];
+            const userId = uid === "me" && profile ? profile._id : uid;
+            try {
+                DislikeController.dislikeDao.findAllTuitsDislikedByUser(userId)
+                    .then((dislikes) => {
+                    const dislikesNonNullTuits = dislikes.filter(dislike => dislike.tuit);
+                    const tuitsFromDislikes = dislikesNonNullTuits.map(dislike => dislike.tuit);
+                    res.json(tuitsFromDislikes);
+                });
+            }
+            catch (e) {
+                console.log(e);
+            }
+        };
+        this.userTogglesTuitDislikes = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const uid = req.params.uid;
+            const tid = req.params.tid;
+            // @ts-ignore
+            const profile = req.session['profile'];
+            const userId = uid === "me" && profile ? profile._id : uid;
+            try {
+                const userAlreadyLikedTuit = yield DislikeController.likeDao
+                    .findUserLikesTuit(userId, tid);
+                const howManyLikedTuit = yield DislikeController.likeDao
+                    .countHowManyLikedTuit(tid);
+                const userAlreadyDislikedTuit = yield DislikeController.dislikeDao
+                    .findUserDislikesTuit(userId, tid);
+                const howManyDislikedTuit = yield DislikeController.dislikeDao
+                    .countHowManyDislikedTuit(tid);
+                let tuit = yield DislikeController.tuitDao.findTuitById(tid);
+                if (userAlreadyDislikedTuit) {
+                    yield DislikeController.dislikeDao.userRemovesDislikeTuit(userId, tid);
+                    tuit.stats.dislikes = howManyDislikedTuit - 1;
                 }
-            }).exec();
+                else {
+                    yield DislikeController.dislikeDao.userDislikesTuit(userId, tid);
+                    tuit.stats.dislikes = howManyDislikedTuit + 1;
+                }
+                if (userAlreadyLikedTuit) {
+                    yield DislikeController.likeDao.userUnlikesTuit(userId, tid);
+                    tuit.stats.likes = howManyLikedTuit - 1;
+                }
+                yield DislikeController.tuitDao.updateLikes(tid, tuit.stats);
+                res.sendStatus(200);
+            }
+            catch (e) {
+                res.sendStatus(404);
+            }
         });
-        this.userDislikesTuit = (uid, tid) => __awaiter(this, void 0, void 0, function* () {
-            return DislikeModel_1.default.create({ tuit: tid, dislikedBy: uid });
-        });
-        this.userRemovesDislikeTuit = (uid, tid) => __awaiter(this, void 0, void 0, function* () {
-            return DislikeModel_1.default.deleteOne({ tuit: tid, dislikedBy: uid });
-        });
-        this.findUserDislikesTuit = (uid, tid) => __awaiter(this, void 0, void 0, function* () { return DislikeModel_1.default.findOne({ tuit: tid, dislikedBy: uid }); });
-        this.countHowManyDislikedTuit = (tid) => __awaiter(this, void 0, void 0, function* () { return DislikeModel_1.default.count({ tuit: tid }); });
     }
 }
-exports.default = DislikeDao;
-DislikeDao.dislikeDao = null;
-/**
- * Creates singleton DAO instance
- * @returns DislikeDao
- */
-DislikeDao.getInstance = () => {
-    if (DislikeDao.dislikeDao === null) {
-        DislikeDao.dislikeDao = new DislikeDao();
+exports.default = DislikeController;
+DislikeController.likeDao = LikeDao_1.default.getInstance();
+DislikeController.dislikeDao = DislikeDao_1.default.getInstance();
+DislikeController.tuitDao = TuitDao_1.default.getInstance();
+DislikeController.dislikeController = null;
+DislikeController.getInstance = (app) => {
+    if (DislikeController.dislikeController === null) {
+        DislikeController.dislikeController = new DislikeController();
+        app.get("/api/users/:uid/dislikes", DislikeController.dislikeController
+            .findAllTuitsDislikedByUser);
+        app.get("/api/tuits/:tid/dislikes", DislikeController.dislikeController
+            .findAllUsersThatDislikedTuit);
+        app.put("/api/users/:uid/dislikes/:tid", DislikeController.dislikeController
+            .userTogglesTuitDislikes);
     }
-    return DislikeDao.dislikeDao;
+    return DislikeController.dislikeController;
 };
+;

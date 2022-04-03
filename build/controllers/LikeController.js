@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const LikeDao_1 = __importDefault(require("../daos/LikeDao"));
 const TuitDao_1 = __importDefault(require("../daos/TuitDao"));
+const DislikeDao_1 = __importDefault(require("../daos/DislikeDao"));
 /**
  * @class TuitController Implements RESTful Web service API for likes resource.
  * Defines the following HTTP endpoints:
@@ -101,6 +102,8 @@ class LikeController {
             try {
                 const userAlreadyLikedTuit = yield LikeController.likeDao.findUserLikesTuit(userId, tid);
                 const howManyLikedTuit = yield LikeController.likeDao.countHowManyLikedTuit(tid);
+                const userAlreadyDislikedTuit = yield LikeController.dislikeDao.findUserDislikesTuit(userId, tid);
+                const howManyDislikedTuit = yield LikeController.dislikeDao.countHowManyDislikedTuit(tid);
                 let tuit = yield LikeController.tuitDao.findTuitById(tid);
                 if (userAlreadyLikedTuit) {
                     yield LikeController.likeDao.userUnlikesTuit(userId, tid);
@@ -109,6 +112,10 @@ class LikeController {
                 else {
                     yield LikeController.likeDao.userLikesTuit(userId, tid);
                     tuit.stats.likes = howManyLikedTuit + 1;
+                }
+                if (userAlreadyDislikedTuit) {
+                    yield LikeController.dislikeDao.userRemovesDislikeTuit(userId, tid);
+                    tuit.stats.dislikes = howManyDislikedTuit - 1;
                 }
                 yield LikeController.tuitDao.updateLikes(tid, tuit.stats);
                 res.sendStatus(200);
@@ -123,6 +130,7 @@ exports.default = LikeController;
 LikeController.likeDao = LikeDao_1.default.getInstance();
 LikeController.tuitDao = TuitDao_1.default.getInstance();
 LikeController.likeController = null;
+LikeController.dislikeDao = DislikeDao_1.default.getInstance();
 /**
  * Creates singleton controller instance
  * @param {Express} app Express instance to declare the RESTful Web service

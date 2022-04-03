@@ -17,6 +17,8 @@ import UserController from "./controllers/UserController";
 import TuitController from "./controllers/TuitController";
 import SessionController from "./controllers/SessionController";
 import AuthenticationController from "./controllers/AuthenticationController";
+import LikeController from "./controllers/LikeController";
+
 import mongoose from "mongoose";
 import GroupController from "./controllers/GroupController";
 const cors = require("cors");
@@ -67,6 +69,8 @@ app.get('/add/:a/:b', (req: Request, res: Response) =>
 const courseController = new CourseController(app);
 const userController = UserController.getInstance(app);
 const tuitController = TuitController.getInstance(app);
+const likeController = LikeController.getInstance(app);
+
 SessionController(app);
 AuthenticationController(app);
 GroupController(app);

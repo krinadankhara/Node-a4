@@ -22,6 +22,7 @@ const UserController_1 = __importDefault(require("./controllers/UserController")
 const TuitController_1 = __importDefault(require("./controllers/TuitController"));
 const SessionController_1 = __importDefault(require("./controllers/SessionController"));
 const AuthenticationController_1 = __importDefault(require("./controllers/AuthenticationController"));
+const LikeController_1 = __importDefault(require("./controllers/LikeController"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const GroupController_1 = __importDefault(require("./controllers/GroupController"));
 const cors = require("cors");
@@ -62,6 +63,7 @@ app.get('/add/:a/:b', (req, res) => res.send(req.params.a + req.params.b));
 const courseController = new CourseController_1.default(app);
 const userController = UserController_1.default.getInstance(app);
 const tuitController = TuitController_1.default.getInstance(app);
+const likeController = LikeController_1.default.getInstance(app);
 (0, SessionController_1.default)(app);
 (0, AuthenticationController_1.default)(app);
 (0, GroupController_1.default)(app);

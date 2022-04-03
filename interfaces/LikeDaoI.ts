@@ -1,4 +1,4 @@
-import Like from "../models/likes/like";
+import Like from "../models/likes/Like";
 
 
 export default interface LikeDaoI {

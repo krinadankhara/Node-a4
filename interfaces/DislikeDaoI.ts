@@ -10,4 +10,5 @@ export default interface DislikeDaoI {
     userDislikesTuit (tid: string, uid: string): Promise<Dislike>;
     userRemovesDislikeTuit (tid: string, uid: string): Promise<any>;
     findUserDislikesTuit (uid: string, tid: string): Promise<any>;
+    countHowManyDislikedTuit (tid: string): Promise<any>;
 };

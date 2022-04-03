@@ -23,12 +23,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * @file Implements mongoose schema to represent dislikes.
- */
 const mongoose_1 = __importStar(require("mongoose"));
 const DislikeSchema = new mongoose_1.default.Schema({
-    tuit: { type: mongoose_1.Schema.Types.ObjectId, ref: "TuitModel", required: true },
-    dislikedBy: { type: mongoose_1.Schema.Types.ObjectId, ref: "UserModel", required: true },
+    tuit: { type: mongoose_1.Schema.Types.ObjectId, ref: "TuitModel" },
+    dislikedBy: { type: mongoose_1.Schema.Types.ObjectId, ref: "UserModel" },
 }, { collection: "dislikes" });
 exports.default = DislikeSchema;

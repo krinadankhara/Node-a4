@@ -2,7 +2,7 @@
 import {Express, Request, Response} from "express";
 import DislikeDao from "../daos/DislikeDao";
 import DislikeControllerI from "../interfaces/DislikeControllerI";
-import Dislike from "../models/dislikes/dislike";
+import Dislike from "../models/dislikes/Dislike";
 import TuitDao from "../daos/TuitDao";
 import LikeDao from "../daos/LikeDao";
 

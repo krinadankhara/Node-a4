@@ -13,10 +13,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const DislikeModel_1 = __importDefault(require("../mongoose/dislikes/DislikeModel"));
-/**
- * @class DislikeDao Implements Data Access Object managing data storage of Dislikes
- * @property {DislikeDao} dislikeDao Private single instance of DislikeDao
- */
 class DislikeDao {
     constructor() {
         this.findAllUsersThatDislikedTuit = (tid) => __awaiter(this, void 0, void 0, function* () {
@@ -37,15 +33,10 @@ class DislikeDao {
             return DislikeModel_1.default.deleteOne({ tuit: tid, dislikedBy: uid });
         });
         this.findUserDislikesTuit = (uid, tid) => __awaiter(this, void 0, void 0, function* () { return DislikeModel_1.default.findOne({ tuit: tid, dislikedBy: uid }); });
-        this.countHowManyDislikedTuit = (tid) => __awaiter(this, void 0, void 0, function* () { return DislikeModel_1.default.count({ tuit: tid }); });
     }
 }
 exports.default = DislikeDao;
 DislikeDao.dislikeDao = null;
-/**
- * Creates singleton DAO instance
- * @returns DislikeDao
- */
 DislikeDao.getInstance = () => {
     if (DislikeDao.dislikeDao === null) {
         DislikeDao.dislikeDao = new DislikeDao();

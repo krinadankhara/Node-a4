@@ -42,7 +42,8 @@ mongoose_1.default.connect(connectionString);
 const app = (0, express_1.default)();
 app.use(cors({
     credentials: true,
-    origin: 'http://localhost:3000',
+    origin: ['http://localhost:3000',
+        'https://chimerical-pie-4274ba.netlify.app']
 }));
 let sess = {
     secret: process.env.SECRET,

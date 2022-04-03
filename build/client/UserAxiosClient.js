@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = __importDefault(require("axios"));
-axios_1.default.defaults.baseURL = 'http://localhost:4000/api';
+axios_1.default.defaults.baseURL = 'https://se-node-a4.herokuapp.com/api';
 //axios.defaults.baseURL = 'https://software-node.herokuapp.com/api';
 //axios.defaults.baseURL = 'https://cs5500-01-sp22.herokuapp.com/api';
 const findAllUsers = () => __awaiter(void 0, void 0, void 0, function* () { return yield axios_1.default.get('/users'); });
